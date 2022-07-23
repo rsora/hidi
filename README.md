@@ -1,5 +1,11 @@
 # `hidi`: Command line tool to obfuscate AWS files of any sort
 
+
+## Usage:
+```bash
+go run . < original.txt > scrambled.txt 
+```
+
 ## Why?
 
 I need a tool that allows me to safely publish any data coming from an AWS
