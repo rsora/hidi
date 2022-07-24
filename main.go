@@ -55,6 +55,13 @@ func ScrambleAWSResourceID(line, salt string) string {
 		// hexSuffix = "e97db305"
 		resourceType := strings.Split(id, "-")[0]
 		hexSuffix := strings.Split(id, "-")[1]
+		// hexSuffix for a real aws res id
+		// must have an even number of chars to be an hex number.
+		// I know, this could be checked with a more complex regex
+		// but it will end up being not so clear to read
+		if len(hexSuffix)%2 != 0 {
+			continue
+		}
 		md5 := GetMD5Hash(hexSuffix + salt)
 		// cut the salted MD5 to the same length as the original hexSuffix
 		hexSuffixScrambled := string(md5[0:len(hexSuffix)])
