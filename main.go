@@ -18,7 +18,7 @@ import (
 // - Ec2 Instances like i-b9b4ffaa
 // - AMI like ami-dbcf88b1
 // - Volumes like vol-e97db305
-const awsIDRegex = "(?i)\\b[a-z]+-[a-z0-9]{8,}"
+const awsIDRegex = "(?i)\\b[a-z]+-[0-9a-f]{8,}"
 const awsAccountIDRegex = "\\b[0-9]{12}"
 
 func main() {
