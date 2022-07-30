@@ -19,8 +19,9 @@ import (
 // - Ec2 Instances like i-b9b4ffaa
 // - AMI like ami-dbcf88b1
 // - Volumes like vol-e97db305
-const awsIDRegex = "(?i)\\b[a-z]+-[0-9a-f]{8,}"
-const awsAccountIDRegex = "\\b[0-9]{12}"
+// - New 17 hex ids like ami-0aeeebd8d2ab47354
+const awsIDRegex = "(?i)\\b([a-z]+-[0-9a-f]{17}|[a-z]+-[0-9a-f]{8})\\b"
+const awsAccountIDRegex = "\\b[0-9]{12}\\b"
 
 // salt contains the salt that will be passed to hash functions
 // that scramble the aws ids. this variable will be exposed as flag
@@ -69,12 +70,6 @@ func ScrambleAWSResourceID(line, salt string) string {
 		resourceType := strings.Split(id, "-")[0]
 		hexSuffix := strings.Split(id, "-")[1]
 		// hexSuffix for a real aws res id
-		// must have an even number of chars to be an hex number.
-		// I know, this could be checked with a more complex regex
-		// but it will end up being not so clear to read
-		if len(hexSuffix)%2 != 0 {
-			continue
-		}
 		md5 := GetMD5Hash(hexSuffix + salt)
 		// cut the salted MD5 to the same length as the original hexSuffix
 		hexSuffixScrambled := string(md5[0:len(hexSuffix)])
