@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"crypto/md5"
 	"encoding/hex"
+	"flag"
 	"fmt"
 	"math/big"
 	"math/rand"
@@ -21,10 +22,22 @@ import (
 const awsIDRegex = "(?i)\\b[a-z]+-[0-9a-f]{8,}"
 const awsAccountIDRegex = "\\b[0-9]{12}"
 
+// salt contains the salt that will be passed to hash functions
+// that scramble the aws ids. this variable will be exposed as flag
+// to allow to keep the same salt on multiple command runs
+// allowing to have multiple files that remains with same ids if
+// scrambled with the same salt
+// (think about having multiple billing files for the same aws account or
+// multiple placebo files for the same test session)
+var salt string
+
 func main() {
-	// Let's set a random salt for tis command execution
+	// Let's set a default random salt for this command execution
 	rand.Seed(time.Now().UnixNano())
-	salt := fmt.Sprint(rand.Intn(100))
+	defaultSalt := fmt.Sprint(rand.Intn(100))
+
+	flag.StringVar(&salt, "s", defaultSalt, "(s)alt passed to aws ids scramble functions")
+	flag.Parse()
 
 	// Start reding Std in
 	scanner := bufio.NewScanner(os.Stdin)

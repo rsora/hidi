@@ -1,10 +1,17 @@
 # `hidi`: Command line tool to obfuscate AWS files of any sort
 
-
 ## Usage:
+
 ```bash
-go run . < original.txt > scrambled.txt 
+go run . [-s <your-salt-string>] < original.txt > scrambled.txt
 ```
+
+The `-s` flag contains the salt that will be passed to hash functions that
+scramble the aws ids. This variable will be exposed as flag to allow to keep the
+same salt on multiple command runs allowing to have multiple files that remains
+with same ids if scrambled with the same salt (think about having multiple
+billing files for the same aws account or multiple placebo files for the same
+test session)
 
 ## Why?
 
@@ -41,5 +48,3 @@ the rest of the world.
 The idea is to have a brute file parser that scans files line by line applying
 heuristics (probably regexes) to find sensitive data and scramble it,
 maintaining it compatible with AWS standards.
-
-
