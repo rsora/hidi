@@ -4,6 +4,12 @@
 
 ```bash
 go run . [-s <your-salt-string>] < original.txt > scrambled.txt
+
+Flags:
+  -c value
+        (c)ustom replace keyword in the form target:replacement
+  -s string
+        (s)alt passed to aws ids scramble functions (default "14")
 ```
 
 The `-s` flag contains the salt that will be passed to hash functions that
