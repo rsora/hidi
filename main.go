@@ -23,6 +23,19 @@ import (
 const awsIDRegex = "(?i)\\b([a-z]+-[0-9a-f]{17}|[a-z]+-[0-9a-f]{8})\\b"
 const awsAccountIDRegex = "\\b[0-9]{12}\\b"
 
+// arrayFlags allows me to pass multiple values for the same flag like
+// command -opt first -opt second
+type arrayFlags []string
+
+func (i *arrayFlags) String() string {
+	return ""
+}
+
+func (i *arrayFlags) Set(value string) error {
+	*i = append(*i, value)
+	return nil
+}
+
 // salt contains the salt that will be passed to hash functions
 // that scramble the aws ids. this variable will be exposed as flag
 // to allow to keep the same salt on multiple command runs
@@ -32,12 +45,15 @@ const awsAccountIDRegex = "\\b[0-9]{12}\\b"
 // multiple placebo files for the same test session)
 var salt string
 
+var customReplaceKeywords arrayFlags
+
 func main() {
 	// Let's set a default random salt for this command execution
 	rand.Seed(time.Now().UnixNano())
 	defaultSalt := fmt.Sprint(rand.Intn(100))
 
 	flag.StringVar(&salt, "s", defaultSalt, "(s)alt passed to aws ids scramble functions")
+	flag.Var(&customReplaceKeywords, "c", "(c)ustom replace keyword in the form target:replacement")
 	flag.Parse()
 
 	// Start reding Std in
@@ -46,6 +62,7 @@ func main() {
 		line := scanner.Text()
 		line = ScrambleAWSResourceID(line, salt)
 		line = ScrambleAWSAccountID(line, salt)
+		line = ReplaceCustomStrings(line, customReplaceKeywords)
 		fmt.Println(line)
 	}
 
@@ -102,4 +119,16 @@ func GetMD5Hash(text string) string {
 	hasher := md5.New()
 	hasher.Write([]byte(text))
 	return hex.EncodeToString(hasher.Sum(nil))
+}
+
+// ReplaceCustomStrings expects custom replace strings to be in form target:replacement
+// if parsing goes wrong, no replacement is applied
+func ReplaceCustomStrings(line string, customReplaceKeywords arrayFlags) string {
+	cleanedLine := line
+	for _, k := range customReplaceKeywords {
+		target := strings.Split(k, ":")[0]
+		replacement := strings.Split(k, ":")[1]
+		cleanedLine = strings.Replace(cleanedLine, target, replacement, -1)
+	}
+	return cleanedLine
 }
